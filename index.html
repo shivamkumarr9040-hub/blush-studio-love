@@ -52,7 +52,7 @@
       <label>Email<input id="email" type="email" placeholder="you@example.com" autocomplete="username"></label>
       <label>Password<input id="password" type="password" placeholder="Your password" autocomplete="current-password"></label>
       <button class="btn primary full" id="loginBtn">Sign in</button>
-      <small id="loginHint">Connect Firebase in <b>app.js</b> to enable secure login and cloud publishing.</small>
+      <small id="loginHint">Connect Supabase in <b>app.js</b> to enable secure login and cloud publishing.</small>
       <div id="loginError" class="error"></div>
     </section>
 
@@ -76,6 +76,15 @@
               </div>
               <label>Welcome message<textarea id="welcome" rows="2" placeholder="Your best friend has prepared something special..."></textarea></label>
               <label>Funny warning / subtitle<input id="warning" placeholder="Warning: thodi bakchodi hone wali hai! 😂"></label>
+              <div class="section-head question-head"><h3>Surprise journey</h3></div>
+              <label>Letter heading<input id="letterTitle" placeholder="A little letter for you 💌"></label>
+              <label>Special letter<textarea id="letterMessage" rows="4" placeholder="Write your special message..."></textarea></label>
+              <label>Loading heading<input id="loadingTitle" placeholder="Preparing your surprise... 💗"></label>
+              <label>Loading subtitle<input id="loadingMessage" placeholder="Thoda sa wait, kuch cute load ho raha hai ✨"></label>
+              <div class="field-grid"><label>Loading duration (seconds)<input id="loadingSeconds" type="number" min="1" max="20" value="4"></label><label>Questions intro heading<input id="introTitle" placeholder="Ready for a little test? 👀"></label></div>
+              <label>Questions intro message<textarea id="introMessage" rows="2" placeholder="Answer these questions..."></textarea></label>
+              <label>Music label<input id="musicLabel" placeholder="Our special song 🎵"></label>
+              <p class="hint">Music starts after the visitor taps Open Surprise. Play/Pause stays at the top.</p>
               <div class="section-head question-head"><h3>Questions</h3><button class="text-btn" id="addQuestion">＋ Add question</button></div>
               <div id="questionsEditor"></div>
               <div class="field-grid">
@@ -91,7 +100,7 @@
                 <label>Photo / GIF<input id="imageUpload" type="file" accept="image/*"></label>
                 <label>Background music<input id="musicUpload" type="file" accept="audio/*"></label>
               </div>
-              <p class="hint">For cloud links that work on every phone, Firebase Storage must be connected. The local preview can use selected files on this device.</p>
+              <p class="hint">For cloud links that work on every phone, Supabase Storage must be connected. The local preview can use selected files on this device.</p>
               <div class="publish-row"><button class="btn primary" id="publishBtn">Publish website ↗</button><span id="publishStatus">Not published yet</span></div>
               <div id="publicLink" class="public-link"></div>
             </div>
@@ -109,7 +118,7 @@
   <main id="publicPage" class="public-page hidden">
     <div id="publicExperience"></div>
   </main>
-  <footer>Made with <span>♥</span> in Blush Studio</footer>
+  <footer>created <span>♥</span> by Shivam</footer>
   <script type="module" src="app.js"></script>
 </body>
 </html>

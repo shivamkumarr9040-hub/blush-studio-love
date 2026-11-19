@@ -11,16 +11,20 @@ const supabase = supabaseReady ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) :
 let currentUser=null, sites=[], activeId=null, localImage="", localMusic="", questionData=[];
 const $ = id => document.getElementById(id);
 const defaultSite = () => ({title:"For Aariya",recipient:"Aariya",welcome:"Your best friend has prepared something special for you...",warning:"Warning: thodi bakchodi hone wali hai! 😂",questions:[{text:"Kya tum Shivam ko apna dost maanti ho?",yes:"Mujhe pata tha! ❤️",no:"Arre soch lo zara 😜"},{text:"Kya tumhe surprises pasand hain?",yes:"Yay! 🎉",no:"Chalo phir bhi surprise hai 😂"}],finalTitle:"You are amazing! 💗",finalMessage:"Thank you for being you. This little surprise was made just for you!",accent:"#ef4d9b",background:"#ffe5f1",imageUrl:"",musicUrl:""});
+const journeyDefaults={letterTitle:"A little letter for you 💌",letterMessage:"You make ordinary moments feel special. This little surprise is just for you! 💗",loadingTitle:"Preparing your surprise... 💗",loadingMessage:"Thoda sa wait, kuch cute load ho raha hai ✨",loadingSeconds:4,introTitle:"Ready for a little test? 👀",introMessage:"Answer these questions, then your final surprise awaits!",musicLabel:"Our special song 🎵"};
+const journeyKeys=Object.keys(journeyDefaults);
+function unpackJourney(s){const meta=(s.questions||[]).find(q=>q&&q.__blushJourney===true);return {...journeyDefaults,...(meta?.settings||{})};}
+function realQuestions(q){return (q||[]).filter(x=>x&&!x.__blushJourney);}
 let draft=defaultSite();
 function route(){const hash=location.hash; if(hash.startsWith("#site/")){showPublic(hash.slice(6));return;} $("home").classList.toggle("hidden",hash!=="#home"&&hash!=="");$("admin").classList.toggle("hidden",hash!=="#admin");$("publicPage").classList.add("hidden");}
 window.addEventListener("hashchange",route); route();
 function setTheme(s){document.documentElement.style.setProperty("--pink",s.accent||"#ef4d9b");document.documentElement.style.setProperty("--purple","#9c67e8");}
-function readForm(){draft={...draft,title:$("siteTitle").value,recipient:$("recipient").value,welcome:$("welcome").value,warning:$("warning").value,questions:questionData,finalTitle:$("finalTitle").value,finalMessage:$("finalMessage").value,accent:$("accent").value,background:$("background").value,imageUrl:localImage||draft.imageUrl||"",musicUrl:localMusic||draft.musicUrl||""};return draft;}
-function fillForm(s){draft=structuredClone(s);questionData=structuredClone(s.questions||[]);$("siteTitle").value=s.title||"";$("recipient").value=s.recipient||"";$("welcome").value=s.welcome||"";$("warning").value=s.warning||"";$("finalTitle").value=s.finalTitle||"";$("finalMessage").value=s.finalMessage||"";$("accent").value=s.accent||"#ef4d9b";$("background").value=s.background||"#ffe5f1";localImage="";localMusic="";renderQuestions();renderPreview();setTheme(s);}
+function readForm(){draft={...draft,title:$("siteTitle").value,recipient:$("recipient").value,welcome:$("welcome").value,warning:$("warning").value,questions:questionData,...Object.fromEntries(journeyKeys.map(k=>[k,$(k).value])),finalTitle:$("finalTitle").value,finalMessage:$("finalMessage").value,accent:$("accent").value,background:$("background").value,imageUrl:localImage||draft.imageUrl||"",musicUrl:localMusic||draft.musicUrl||""};return draft;}
+function fillForm(s){draft=structuredClone(s);questionData=structuredClone(realQuestions(s.questions));const settings={...unpackJourney(s),...Object.fromEntries(journeyKeys.filter(k=>s[k]!==undefined).map(k=>[k,s[k]]))};journeyKeys.forEach(k=>$(k).value=settings[k]);$("siteTitle").value=s.title||"";$("recipient").value=s.recipient||"";$("welcome").value=s.welcome||"";$("warning").value=s.warning||"";$("finalTitle").value=s.finalTitle||"";$("finalMessage").value=s.finalMessage||"";$("accent").value=s.accent||"#ef4d9b";$("background").value=s.background||"#ffe5f1";localImage="";localMusic="";renderQuestions();renderPreview();setTheme(s);}
 function renderQuestions(){$("questionsEditor").innerHTML="";questionData.forEach((q,i)=>{const box=document.createElement("div");box.className="question-box";box.innerHTML=`<div class="question-box-top"><span>QUESTION ${i+1}</span><button class="remove" data-remove="${i}">Remove ×</button></div><input data-q="${i}" placeholder="Write your question..." value="${escapeHtml(q.text)}"><input data-yes="${i}" placeholder="YES response" value="${escapeHtml(q.yes||"")}"><input data-no="${i}" placeholder="NO response" value="${escapeHtml(q.no||"")}">`;$("questionsEditor").append(box);});}
 function escapeHtml(s=""){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function renderPreview(){const s=readForm();setTheme(s);$("livePreview").style.background=s.background;$("livePreview").innerHTML=`<div style="color:${s.accent};font:italic 700 20px Georgia">${escapeHtml(s.title||"For Someone")}</div><div class="mini-envelope">💌</div><h3>Sun ${escapeHtml(s.recipient||"you")}! ❤️</h3><p>${escapeHtml(s.welcome||"A little surprise is waiting...")}</p>${s.imageUrl?`<img src="${s.imageUrl}" style="max-width:90%;max-height:90px;border-radius:10px">`:""}<p>${escapeHtml(s.questions[0]?.text||"Your first question appears here")}</p><span class="mini-btn">YES ❤️</span><span class="mini-btn" style="background:#fff;color:#987">NO 😜</span>`;}
-["siteTitle","recipient","welcome","warning","finalTitle","finalMessage","accent","background"].forEach(id=>$(id).addEventListener("input",renderPreview));
+["siteTitle","recipient","welcome","warning","finalTitle","finalMessage","accent","background",...journeyKeys].forEach(id=>$(id).addEventListener("input",renderPreview));
 $("questionsEditor").addEventListener("input",e=>{const el=e.target;if(el.dataset.q!==undefined)questionData[+el.dataset.q].text=el.value;if(el.dataset.yes!==undefined)questionData[+el.dataset.yes].yes=el.value;if(el.dataset.no!==undefined)questionData[+el.dataset.no].no=el.value;renderPreview();});
 $("questionsEditor").addEventListener("click",e=>{if(e.target.dataset.remove!==undefined){questionData.splice(+e.target.dataset.remove,1);renderQuestions();renderPreview();}});
 $("addQuestion").onclick=()=>{questionData.push({text:"",yes:"Yay! ❤️",no:"Try again 😜"});renderQuestions();renderPreview();};
@@ -56,7 +60,7 @@ $("logoutBtn").onclick=async()=>{if(supabase) await supabase.auth.signOut();};
 async function loadSites(){
   const {data,error}=await supabase.from("sites").select("*").eq("user_id",currentUser.id).order("updated_at",{ascending:false});
   if(error) throw error;
-  sites=(data||[]).map(s=>({...s,id:s.id,title:s.title,recipient:s.recipient,welcome:s.welcome,warning:s.warning,questions:s.questions,finalTitle:s.final_title,finalMessage:s.final_message,accent:s.accent,background:s.background,imageUrl:s.image_url||"",musicUrl:s.music_url||"",published:s.published}));
+  sites=(data||[]).map(s=>({...s,id:s.id,title:s.title,recipient:s.recipient,welcome:s.welcome,warning:s.warning,questions:realQuestions(s.questions),...unpackJourney(s),finalTitle:s.final_title,finalMessage:s.final_message,accent:s.accent,background:s.background,imageUrl:s.image_url||"",musicUrl:s.music_url||"",published:s.published}));
   renderSiteList();
   if(sites.length){activeId=sites[0].id;fillForm(sites[0]);$("editorTitle").textContent=sites[0].title;}
   else{$("newSiteBtn").click();}
@@ -85,7 +89,7 @@ async function saveSite(){
     $("publishStatus").textContent="Saving...";
     let s=readForm();
     s.imageUrl=await uploadIfNeeded(s.imageUrl,"image");s.musicUrl=await uploadIfNeeded(s.musicUrl,"music");
-    const row={user_id:currentUser.id,title:s.title,recipient:s.recipient,welcome:s.welcome,warning:s.warning,questions:s.questions,final_title:s.finalTitle,final_message:s.finalMessage,accent:s.accent,background:s.background,image_url:s.imageUrl,music_url:s.musicUrl,published:true,updated_at:new Date().toISOString()};
+    const row={user_id:currentUser.id,title:s.title,recipient:s.recipient,welcome:s.welcome,warning:s.warning,questions:[...realQuestions(s.questions),{__blushJourney:true,settings:Object.fromEntries(journeyKeys.map(k=>[k,s[k]]))}],final_title:s.finalTitle,final_message:s.finalMessage,accent:s.accent,background:s.background,image_url:s.imageUrl,music_url:s.musicUrl,published:true,updated_at:new Date().toISOString()};
     let result;
     if(activeId){
       result=await supabase.from("sites").update(row).eq("id",activeId).select().single();
@@ -108,13 +112,58 @@ async function showPublic(id,override=null){
       const {data,error}=await supabase.from("sites").select("*").eq("id",id).eq("published",true).maybeSingle();
       if(error) throw error;
       if(!data){$("publicExperience").textContent="This surprise link was not found.";return;}
-      s={...data,title:data.title,recipient:data.recipient,welcome:data.welcome,warning:data.warning,questions:data.questions,finalTitle:data.final_title,finalMessage:data.final_message,accent:data.accent,background:data.background,imageUrl:data.image_url||"",musicUrl:data.music_url||""};
+      s={...data,title:data.title,recipient:data.recipient,welcome:data.welcome,warning:data.warning,questions:realQuestions(data.questions),...unpackJourney(data),finalTitle:data.final_title,finalMessage:data.final_message,accent:data.accent,background:data.background,imageUrl:data.image_url||"",musicUrl:data.music_url||""};
     }catch(e){$("publicExperience").textContent="Could not load this surprise. Check Supabase setup.";return;}
   }
   renderExperience(s);
 }
 initSupabase();
 
-function renderExperience(s){let step=-1;let music=null;const root=$("publicExperience");root.innerHTML="";const card=document.createElement("section");card.className="experience-card";card.style.background=`linear-gradient(145deg,${s.background||"#ffe5f1"},#fffafd)`;card.style.setProperty("--pink",s.accent||"#ef4d9b");card.innerHTML=`<div class="heart-rain"></div><h1 class="experience-title">${escapeHtml(s.title||"For Someone Special")}</h1><div class="progress">${(s.questions||[]).map((_,i)=>`<span>${i+1}</span>`).join("")}</div><div class="experience-body"></div>`;root.append(card);function hearts(){const rain=card.querySelector(".heart-rain");for(let i=0;i<14;i++){const h=document.createElement("span");h.textContent=["💗","💕","💖","✨"][i%4];h.style.left=Math.random()*95+"%";h.style.animationDelay=Math.random()*.5+"s";rain.append(h);setTimeout(()=>h.remove(),2600);}}
-function render(){const body=card.querySelector(".experience-body");const progress=[...card.querySelectorAll(".progress span")];progress.forEach((p,i)=>p.classList.toggle("active",i===step));if(step===-1){body.innerHTML=`<div class="surprise-tag">✨ A SPECIAL SURPRISE ✨</div><h2>Sun ${escapeHtml(s.recipient||"you")}! ❤️</h2><p>${escapeHtml(s.welcome||"Someone made something special for you...")}</p>${s.warning?`<div class="warning">${escapeHtml(s.warning)}</div>`:""}${s.imageUrl?`<img class="experience-media" src="${s.imageUrl}">`:""}<div class="envelope-big" role="button" aria-label="Open envelope">💌</div><p>Envelope par tap karo 👆</p><button class="btn primary next-btn">OPEN YOUR SURPRISE 💌</button>`;body.querySelector(".next-btn").onclick=body.querySelector(".envelope-big").onclick=()=>{if(s.musicUrl&&!music){music=new Audio(s.musicUrl);music.loop=true;music.play().catch(()=>{});}step=0;render();};}else if(step<(s.questions||[]).length){const q=s.questions[step];body.innerHTML=`<div class="surprise-tag">💌 QUESTION ${step+1} OF ${s.questions.length}</div><h2>${escapeHtml(q.text)}</h2><p>Soch samajh kar jawab dena... 😉</p><div class="answer-row"><button class="answer yes">YES ❤️</button><button class="answer no">NO 😜</button></div><p class="feedback"></p>`;const yes=body.querySelector(".yes"),no=body.querySelector(".no");yes.onclick=()=>{hearts();body.querySelector(".feedback").textContent=q.yes||"Yay! ❤️";yes.disabled=true;no.disabled=true;setTimeout(()=>{step++;render();},850);};let moves=0;no.onpointerenter=no.ontouchstart=()=>{moves++;if(moves<9){const x=(Math.random()-.5)*210,y=(Math.random()-.5)*100;no.style.transform=`translate(${x}px,${y}px)`;}else{no.textContent="Okay YES? 😂";no.onclick=()=>yes.click();}};no.onclick=()=>{no.textContent=q.no||"Hehe, try YES 😜";no.style.transform=`translate(${(Math.random()-.5)*120}px,${(Math.random()-.5)*70}px)`;};}else{body.innerHTML=`<div class="surprise-tag">💖 YOU MADE IT 💖</div><h2>${escapeHtml(s.finalTitle||"A little surprise for you!")}</h2>${s.imageUrl?`<img class="experience-media" src="${s.imageUrl}">`:""}<p>${escapeHtml(s.finalMessage||"You are special!")}</p><div class="envelope-big">💝</div><button class="btn primary next-btn">RESTART ↻</button>`;body.querySelector("button").onclick=()=>{step=-1;render();};}}render();}
-initFirebase();
+function renderExperience(s){
+  const root=$("publicExperience");root.replaceChildren();
+  const cfg={...journeyDefaults,...unpackJourney(s),...Object.fromEntries(journeyKeys.filter(k=>s[k]!==undefined).map(k=>[k,s[k]]))};
+  const questions=realQuestions(s.questions), stages=["welcome","letter","loading","intro",...questions.map((_,i)=>`question-${i}`),"final"];
+  let stage=0, music=null, timer=null, alive=true;
+  const card=document.createElement("section");card.className="experience-card journey-card";
+  card.style.background=`linear-gradient(145deg,${/^#[0-9a-f]{6}$/i.test(s.background||"")?s.background:"#ffe5f1"},#fffafd)`;
+  card.style.setProperty("--pink",/^#[0-9a-f]{6}$/i.test(s.accent||"")?s.accent:"#ef4d9b");
+  root.append(card);
+  const esc=escapeHtml;
+  function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
+  function setStage(i){stopTimer();stage=i;render();}
+  function hearts(){const rain=card.querySelector(".heart-rain");if(!rain)return;for(let i=0;i<14;i++){const el=document.createElement("span");el.textContent=["💗","💕","💖","✨"][i%4];el.style.left=Math.random()*95+"%";rain.append(el);setTimeout(()=>el.remove(),2400);}}
+  function initMusic(){if(!s.musicUrl||music)return;music=new Audio(s.musicUrl);music.loop=true;music.play().catch(()=>{});}
+  function controls(){const btn=card.querySelector(".music-toggle");if(btn)btn.onclick=()=>{if(!music)initMusic();else if(music.paused)music.play().catch(()=>{});else music.pause();btn.textContent=music&&!music.paused?"⏸":"▶";};card.querySelector(".journey-restart").onclick=()=>{if(music){music.pause();music.currentTime=0;}setStage(0);};}
+  function render(){
+    if(!card.isConnected)return;
+    const kind=stages[stage], phase=kind==="welcome"?0:kind==="letter"?1:kind==="loading"||kind==="intro"?2:3;
+    card.innerHTML=`<div class="heart-rain"></div><div class="journey-toolbar"><span>♡ ${esc(s.title||"For Someone Special")}</span><div class="journey-actions"><span class="music-label">${esc(cfg.musicLabel)}</span><button class="journey-icon music-toggle" aria-label="Play or pause music" ${!s.musicUrl?'disabled title="Upload music in Creator Studio"':''}>${music&&!music.paused?'⏸':'▶'}</button><button class="journey-icon journey-restart" aria-label="Restart surprise">↻</button></div></div><div class="journey-phases">${[1,2,3,4].map((x,i)=>`<span class="${i===phase?'active':''}">${x}</span>`).join("")}</div><div class="experience-body"></div>`;
+    controls();const body=card.querySelector(".experience-body");
+    if(kind==="welcome"){
+      body.innerHTML=`<div class="surprise-tag">✨ A SPECIAL SURPRISE ✨</div><h2>Sun ${esc(s.recipient||"you")}! ❤️</h2><p>${esc(s.welcome||"Someone made something special for you...")}</p>${s.warning?`<div class="warning">${esc(s.warning)}</div>`:""}<div class="envelope-big">💌</div><button class="btn primary next-btn">OPEN YOUR SURPRISE 💌</button>`;
+      body.querySelector("button").onclick=()=>{initMusic();setStage(stage+1);};
+    }else if(kind==="letter"){
+      body.innerHTML=`<div class="surprise-tag">💌 A LETTER FOR YOU</div><div class="letter-seal">💌</div><h2>${esc(cfg.letterTitle)}</h2><p class="letter-text">${esc(cfg.letterMessage)}</p><button class="btn primary next-btn">Continue ✨</button>`;
+      body.querySelector("button").onclick=()=>setStage(stage+1);
+    }else if(kind==="loading"){
+      const seconds=Math.min(20,Math.max(1,Number(cfg.loadingSeconds)||4));const start=performance.now();
+      body.innerHTML=`<div class="loading-hearts">💗 💖 💗</div><h2>${esc(cfg.loadingTitle)}</h2><p>${esc(cfg.loadingMessage)}</p><div class="loading-track"><div class="loading-fill"></div></div><div class="loading-percent" aria-live="off">0%</div>`;
+      const fill=body.querySelector(".loading-fill"),pct=body.querySelector(".loading-percent");
+      timer=setInterval(()=>{const v=Math.min(100,Math.round((performance.now()-start)/(seconds*1000)*100));fill.style.width=v+"%";pct.textContent=v+"%";if(v===100)setStage(stage+1);},80);
+    }else if(kind==="intro"){
+      body.innerHTML=`<div class="surprise-tag">👀 PHASE THREE</div><div class="loading-hearts">💘</div><h2>${esc(cfg.introTitle)}</h2><p>${esc(cfg.introMessage)}</p><button class="btn primary next-btn">Let's go! 💗</button>`;
+      body.querySelector("button").onclick=()=>setStage(stage+1);
+    }else if(kind.startsWith("question-")){
+      const n=Number(kind.split("-")[1]),q=questions[n];
+      body.innerHTML=`<div class="surprise-tag">💬 QUESTION ${n+1} OF ${questions.length}</div><h2>${esc(q.text)}</h2><p>Soch samajh kar jawab dena... 😉</p><div class="answer-row"><button class="answer yes">YES ❤️</button><button class="answer no">NO 😜</button></div><p class="feedback" aria-live="polite"></p>`;
+      const yes=body.querySelector(".yes"),no=body.querySelector(".no"),feedback=body.querySelector(".feedback");
+      yes.onclick=()=>{feedback.textContent=q.yes||"Yay! ❤️";yes.disabled=no.disabled=true;hearts();setTimeout(()=>{if(card.isConnected&&stages[stage]===kind)setStage(stage+1);},1100);};
+      no.onclick=()=>{feedback.textContent=q.no||"Hehe 😜";no.disabled=yes.disabled=true;setTimeout(()=>{if(card.isConnected&&stages[stage]===kind)setStage(stage+1);},1300);};
+    }else{
+      body.innerHTML=`<div class="surprise-tag">💖 YOUR FINAL SURPRISE 💖</div><h2>${esc(s.finalTitle||"You are amazing!")}</h2>${s.imageUrl?`<img class="experience-media" alt="Surprise photo">`:""}<p class="letter-text">${esc(s.finalMessage||"You are special!")}</p><div class="loading-hearts">💝</div><button class="btn primary next-btn">RESTART ↻</button>`;
+      if(s.imageUrl)body.querySelector("img").src=s.imageUrl;
+      body.querySelector("button").onclick=()=>{if(music){music.pause();music.currentTime=0;}setStage(0);};hearts();
+    }
+  }
+  render();
+}
