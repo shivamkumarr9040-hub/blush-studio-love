@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7c7e5">
+  <title>Blush Studio — Surprise Website Creator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient a1"></div><div class="ambient a2"></div>
+  <header class="topbar">
+    <a class="brand" href="#home"><span class="brand-mark">♥</span> Blush Studio</a>
+    <nav><a href="#home">Home</a><a href="#admin">Creator</a></nav>
+  </header>
+
+  <main id="home" class="hero page">
+    <section class="hero-copy">
+      <div class="eyebrow">A LITTLE MAGIC, MADE BY YOU</div>
+      <h1>Make someone’s day<br><em>unforgettable.</em></h1>
+      <p>Create a personal surprise website with your own questions, music, photos, animations and a special ending.</p>
+      <div class="hero-actions"><a class="btn primary" href="#admin">Create my website <span>↗</span></a><a class="btn ghost" href="#demo">See a preview</a></div>
+      <div class="mini-proof"><span>♥</span> Made for moments that matter</div>
+    </section>
+    <section class="preview-wrap" id="demo">
+      <div class="preview-glow"></div>
+      <div class="mock-window">
+        <div class="mock-top"><i></i><i></i><i></i><span>your-surprise.site</span></div>
+        <div class="mock-content">
+          <div class="mock-script">For Someone Special</div>
+          <div class="mock-pill">✦ A LITTLE SURPRISE ✦</div>
+          <div class="mock-heart">💗</div>
+          <h2>Hey, you! <span>♡</span></h2>
+          <p>Someone made something<br>just for you...</p>
+          <div class="mock-envelope">💌</div>
+          <div class="mock-cta">OPEN YOUR SURPRISE</div>
+          <div class="mock-dots">♥　✦　♥　✦　♥</div>
+        </div>
+      </div>
+      <div class="float-card fc1">♡ made with love</div><div class="float-card fc2">✦ your own story</div>
+    </section>
+  </main>
+
+  <main id="admin" class="page dashboard hidden">
+    <div class="dash-heading">
+      <div><div class="eyebrow">YOUR CREATIVE SPACE</div><h1>Creator <em>Studio</em></h1><p>Build, customize and manage all your surprise websites.</p></div>
+      <button class="btn primary" id="newSiteBtn">＋ New website</button>
+    </div>
+    <section id="loginPanel" class="login-card">
+      <div class="login-icon">🔐</div><h2>Welcome back, creator</h2>
+      <p>Sign in to manage your websites.</p>
+      <label>Email<input id="email" type="email" placeholder="you@example.com" autocomplete="username"></label>
+      <label>Password<input id="password" type="password" placeholder="Your password" autocomplete="current-password"></label>
+      <button class="btn primary full" id="loginBtn">Sign in</button>
+      <small id="loginHint">Connect Firebase in <b>app.js</b> to enable secure login and cloud publishing.</small>
+      <div id="loginError" class="error"></div>
+    </section>
+
+    <section id="studioPanel" class="studio hidden">
+      <div class="studio-toolbar">
+        <div><span class="live-dot"></span><b id="accountLabel">Signed in</b></div>
+        <button class="btn small ghost" id="logoutBtn">Sign out</button>
+      </div>
+      <div class="studio-grid">
+        <aside class="site-list-card">
+          <div class="section-head"><h3>My websites</h3><span id="siteCount">0</span></div>
+          <div id="siteList" class="site-list"></div>
+        </aside>
+        <section class="editor-card">
+          <div class="editor-top"><div><div class="eyebrow">CUSTOMIZE YOUR EXPERIENCE</div><h2 id="editorTitle">New surprise</h2></div><div class="editor-actions"><button class="btn small ghost" id="previewBtn">Preview</button><button class="btn small primary" id="saveBtn">Save changes</button></div></div>
+          <div class="editor-layout">
+            <div class="editor-form">
+              <div class="field-grid">
+                <label>Website title<input id="siteTitle" placeholder="For Aariya"></label>
+                <label>Recipient name<input id="recipient" placeholder="Aariya"></label>
+              </div>
+              <label>Welcome message<textarea id="welcome" rows="2" placeholder="Your best friend has prepared something special..."></textarea></label>
+              <label>Funny warning / subtitle<input id="warning" placeholder="Warning: thodi bakchodi hone wali hai! 😂"></label>
+              <div class="section-head question-head"><h3>Questions</h3><button class="text-btn" id="addQuestion">＋ Add question</button></div>
+              <div id="questionsEditor"></div>
+              <div class="field-grid">
+                <label>Final surprise heading<input id="finalTitle" placeholder="You are amazing!"></label>
+                <label>Final message<textarea id="finalMessage" rows="2" placeholder="A little message just for you..."></textarea></label>
+              </div>
+              <div class="section-head"><h3>Look & feel</h3></div>
+              <div class="field-grid">
+                <label>Accent color<input id="accent" type="color" value="#ef4d9b"></label>
+                <label>Background color<input id="background" type="color" value="#ffe5f1"></label>
+              </div>
+              <div class="field-grid">
+                <label>Photo / GIF<input id="imageUpload" type="file" accept="image/*"></label>
+                <label>Background music<input id="musicUpload" type="file" accept="audio/*"></label>
+              </div>
+              <p class="hint">For cloud links that work on every phone, Firebase Storage must be connected. The local preview can use selected files on this device.</p>
+              <div class="publish-row"><button class="btn primary" id="publishBtn">Publish website ↗</button><span id="publishStatus">Not published yet</span></div>
+              <div id="publicLink" class="public-link"></div>
+            </div>
+            <div class="phone-column">
+              <div class="phone-label">LIVE MOBILE PREVIEW</div>
+              <div class="phone-frame"><div class="phone-notch"></div><div id="livePreview" class="phone-screen"></div></div>
+              <p class="hint center">Preview updates as you edit.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <main id="publicPage" class="public-page hidden">
+    <div id="publicExperience"></div>
+  </main>
+  <footer>Made with <span>♥</span> in Blush Studio</footer>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
