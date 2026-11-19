@@ -156,9 +156,53 @@ function renderExperience(s){
     }else if(kind.startsWith("question-")){
       const n=Number(kind.split("-")[1]),q=questions[n];
       body.innerHTML=`<div class="surprise-tag">💬 QUESTION ${n+1} OF ${questions.length}</div><h2>${esc(q.text)}</h2><p>Soch samajh kar jawab dena... 😉</p><div class="answer-row"><button class="answer yes">YES ❤️</button><button class="answer no">NO 😜</button></div><p class="feedback" aria-live="polite"></p>`;
-      const yes=body.querySelector(".yes"),no=body.querySelector(".no"),feedback=body.querySelector(".feedback");
-      yes.onclick=()=>{feedback.textContent=q.yes||"Yay! ❤️";yes.disabled=no.disabled=true;hearts();setTimeout(()=>{if(card.isConnected&&stages[stage]===kind)setStage(stage+1);},1100);};
-      no.onclick=()=>{feedback.textContent=q.no||"Hehe 😜";no.disabled=yes.disabled=true;setTimeout(()=>{if(card.isConnected&&stages[stage]===kind)setStage(stage+1);},1300);};
+const yes = body.querySelector(".yes");
+const no = body.querySelector(".no");
+const feedback = body.querySelector(".feedback");
+
+yes.onclick = () => {
+  feedback.textContent = q.yes || "Yay! ❤️";
+  yes.disabled = true;
+  no.disabled = true;
+  hearts();
+
+  setTimeout(() => {
+    if (card.isConnected && stages[stage] === kind) {
+      setStage(stage + 1);
+    }
+  }, 1100);
+};
+
+// NO button ko card ke andar bhagane ke liye
+const area = body.querySelector(".answer-row");
+area.style.position = "relative";
+area.style.minHeight = "170px";
+
+no.style.position = "absolute";
+no.style.left = "55%";
+no.style.top = "0px";
+no.style.zIndex = "5";
+
+function moveNo() {
+  const maxX = Math.max(0, area.clientWidth - no.offsetWidth);
+  const maxY = Math.max(0, area.clientHeight - no.offsetHeight);
+
+  no.style.left = Math.random() * maxX + "px";
+  no.style.top = Math.random() * maxY + "px";
+}
+
+no.addEventListener("mouseenter", moveNo);
+
+no.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  moveNo();
+}, { passive: false });
+
+no.addEventListener("click", (e) => {
+  e.preventDefault();
+  feedback.textContent = q.no || "Hehe 😜";
+  moveNo();
+});
     }else{
       body.innerHTML=`<div class="surprise-tag">💖 YOUR FINAL SURPRISE 💖</div><h2>${esc(s.finalTitle||"You are amazing!")}</h2>${s.imageUrl?`<img class="experience-media" alt="Surprise photo">`:""}<p class="letter-text">${esc(s.finalMessage||"You are special!")}</p><div class="loading-hearts">💝</div><button class="btn primary next-btn">RESTART ↻</button>`;
       if(s.imageUrl)body.querySelector("img").src=s.imageUrl;
