@@ -132,7 +132,7 @@ function renderExperience(s){
   function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
   function setStage(i){stopTimer();stage=i;render();}
   function hearts(){const rain=card.querySelector(".heart-rain");if(!rain)return;for(let i=0;i<14;i++){const el=document.createElement("span");el.textContent=["💗","💕","💖","✨"][i%4];el.style.left=Math.random()*95+"%";rain.append(el);setTimeout(()=>el.remove(),2400);}}
-  function initMusic(){if(!s.musicUrl||music)return;music=new Audio(s.musicUrl);music.loop=true;music.play().catch(()=>{});}
+  function initMusic(){if(!s.musicUrl||music)return;music=new Audio(s.musicUrl); music.volume = 0.2;;music.loop=true;music.play().catch(()=>{});}
   function controls(){const btn=card.querySelector(".music-toggle");if(btn)btn.onclick=()=>{if(!music)initMusic();else if(music.paused)music.play().catch(()=>{});else music.pause();btn.textContent=music&&!music.paused?"⏸":"▶";};card.querySelector(".journey-restart").onclick=()=>{if(music){music.pause();music.currentTime=0;}setStage(0);};}
   function render(){
     if(!card.isConnected)return;
