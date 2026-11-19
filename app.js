@@ -155,7 +155,7 @@ function renderExperience(s){
       body.querySelector("button").onclick=()=>setStage(stage+1);
     }else if(kind.startsWith("question-")){
       const n=Number(kind.split("-")[1]),q=questions[n];
-      body.innerHTML=`<div class="surprise-tag">💬 QUESTION ${n+1} OF ${questions.length}</div><h2>${esc(q.text)}</h2><p>Soch samajh kar jawab dena... 😉</p><div class="answer-row"><button class="answer yes">YES ❤️</button><button class="answer no">NO 😜</button></div><p class="feedback" aria-live="polite"></p>`;
+      body.innerHTML=`<div class="surprise-tag">💬 QUESTION ${n+1} OF ${questions.length}</div><h2>${esc(q.text)}</h2><p>Soch samajh kar jawab dena... 😉</p><div class="answer-row"><button class="answer yes">${esc(q.yes || "YES ❤️")}</button><button class="answer no">${esc(q.no || "NO 😜")}</button></div><p class="feedback" aria-live="polite"></p>`;
 const yes = body.querySelector(".yes");
 const no = body.querySelector(".no");
 const feedback = body.querySelector(".feedback");
